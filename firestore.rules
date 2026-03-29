@@ -1,0 +1,107 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: userId (UID)
+    // Fields:
+    //   - uid: string (required) - UID of the user
+    //   - email: string (required) - Email of the user
+    //   - displayName: string (optional) - Display name
+    //   - photoURL: string (optional) - Avatar URL
+    //   - role: string (optional) - Role: admin, teacher, student
+    //
+    // Collection: matrices
+    // Document ID: matrixId (Auto-generated)
+    // Fields:
+    //   - title: string (required) - Name of the matrix
+    //   - rows: list (required) - Array of matrix row objects
+    //   - subject: string (required) - Subject name
+    //   - grade: string (required) - Grade level
+    //   - authorUid: string (required) - UID of the creator
+    //   - createdAt: timestamp (required) - Creation time
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "vutienlucnhc@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email']) &&
+             data.uid is string && data.uid.size() > 0 &&
+             data.email is string && data.email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$") &&
+             (!('role' in data) || data.role in ['admin', 'teacher', 'student']);
+    }
+
+    function isValidMatrix(data) {
+      return data.keys().hasAll(['title', 'rows', 'subject', 'grade', 'authorUid', 'createdAt']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
+             data.rows is list && data.rows.size() < 100 &&
+             data.subject is string && data.subject.size() > 0 &&
+             data.grade is string && data.grade.size() > 0 &&
+             data.authorUid is string && data.authorUid == request.auth.uid &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidBankItem(data) {
+      return data.keys().hasAll(['id', 'title', 'type', 'subject', 'grade', 'authorUid', 'createdAt', 'data']) &&
+             data.id is string && data.id.size() > 0 &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 300 &&
+             data.type in ['exam', 'matrix', 'theory', 'polya'] &&
+             data.subject is string && data.subject.size() > 0 &&
+             data.grade is string && data.grade.size() > 0 &&
+             data.authorUid is string && data.authorUid == request.auth.uid &&
+             data.createdAt is timestamp &&
+             data.data is map;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data) && 
+                      (!('role' in request.resource.data) || request.resource.data.role != 'admin' || isAdmin());
+      allow update: if isOwner(userId) && isValidUser(request.resource.data) && 
+                      (request.resource.data.role == resource.data.role || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    match /matrices/{matrixId} {
+      allow read: if isAuthenticated() && resource.data.authorUid == request.auth.uid;
+      allow create: if isAuthenticated() && isValidMatrix(request.resource.data);
+      allow update: if isAuthenticated() && resource.data.authorUid == request.auth.uid && 
+                      isValidMatrix(request.resource.data) && 
+                      request.resource.data.authorUid == resource.data.authorUid;
+      allow delete: if isAuthenticated() && resource.data.authorUid == request.auth.uid;
+    }
+
+    match /bank/{itemId} {
+      allow read: if isAuthenticated() && resource.data.authorUid == request.auth.uid;
+      allow create: if isAuthenticated() && isValidBankItem(request.resource.data);
+      allow update: if isAuthenticated() && resource.data.authorUid == request.auth.uid && 
+                      isValidBankItem(request.resource.data) && 
+                      request.resource.data.authorUid == resource.data.authorUid;
+      allow delete: if isAuthenticated() && resource.data.authorUid == request.auth.uid;
+    }
+  }
+}

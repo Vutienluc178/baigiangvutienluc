@@ -1,0 +1,7 @@
+{
+  "name": "AI Teacher Studio - Luyện thi & Soạn bài thông minh",
+  "description": "Hệ thống AI sinh đề luyện tập thông minh, soạn bài giảng slide và trợ lý giảng dạy chuyên sâu.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Studio Luyện Thi & Soạn Bài Thông Minh AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Roboto', 'sans-serif'],
+              montserrat: ['Montserrat', 'sans-serif'],
+              merriweather: ['Merriweather', 'serif'],
+            },
+            colors: {
+              slate: {
+                850: '#151F2E',
+                900: '#0F172A',
+                950: '#020617',
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700;900&family=Montserrat:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    
+    <!-- MathJax Configuration -->
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          packages: ['base', 'ams', 'noerrors', 'noundefined']
+        },
+        options: {
+          ignoreHtmlClass: 'tex2jax_ignore',
+          processHtmlClass: 'tex2jax_process'
+        },
+        svg: {
+          fontCache: 'global'
+        }
+      };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+        font-weight: 500;
+      }
+      mjx-container {
+        display: inline-block !important;
+        margin: 0 1px !important;
+        vertical-align: middle !important;
+      }
+      mjx-container svg {
+        display: block; 
+        transform-origin: bottom left;
+      }
+      .dark mjx-container svg path {
+        fill: currentColor;
+      }
+      .dark mjx-container {
+        color: #f1f5f9;
+      }
+      @keyframes rainbow-text {
+        0% { color: #ff0000; }
+        17% { color: #ffff00; }
+        33% { color: #00ff00; }
+        50% { color: #00ffff; }
+        67% { color: #0000ff; }
+        83% { color: #ff00ff; }
+        100% { color: #ff0000; }
+      }
+      .animate-rainbow {
+        animation: rainbow-text 3s linear infinite;
+      }
+      @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @keyframes fade-in-up {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes bounce-in {
+        0% { transform: scale(0.3); opacity: 0; }
+        50% { transform: scale(1.05); opacity: 1; }
+        70% { transform: scale(0.9); }
+        100% { transform: scale(1); }
+      }
+      .animate-fade-in {
+        animation: fade-in 0.3s ease-out forwards;
+      }
+      .animate-fade-in-up {
+        animation: fade-in-up 0.5s ease-out forwards;
+      }
+      .animate-bounce-in {
+        animation: bounce-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(99, 102, 241, 0.2);
+        border-radius: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(99, 102, 241, 0.4);
+      }
+      @media print {
+        @page {
+          size: A4;
+          margin: 10mm 15mm;
+        }
+        body {
+          background-color: white;
+          font-size: 11pt !important;
+          color: black;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+          font-weight: 400;
+        }
+        .no-print {
+          display: none !important;
+        }
+        .print-break-inside-avoid {
+          break-inside: avoid;
+        }
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.33.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.561.0",
+    "docx": "https://esm.sh/docx@^8.5.0",
+    "file-saver": "https://esm.sh/file-saver@^2.0.5",
+    "better-react-mathjax": "https://esm.sh/better-react-mathjax@^2.4.0-beta-1",
+    "mathjax-full/": "https://esm.sh/mathjax-full@3.2.2/",
+    "mathml2omml": "https://esm.sh/mathml2omml@0.5.0",
+    "path": "https://esm.sh/path@^0.12.7",
+    "vite": "https://esm.sh/vite@^7.3.0",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "url": "https://esm.sh/url@^0.11.4",
+    "katex": "https://esm.sh/katex@^0.16.27",
+    "pako": "https://esm.sh/pako@^2.1.0",
+    "mammoth": "https://esm.sh/mammoth@1.6.0"
+  }
+}
+</script>
+</head>
+  <body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
