@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, RefreshCw, History, Dices, Users, LayoutGrid, Sparkles, Trash2, Plus, Minus, UserPlus, Settings, Trophy, List, Play } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface Participant {
   id: string;
@@ -45,6 +46,59 @@ const COLORS = [
   '#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f59e0b', '#10b981', '#06b6d4', '#3b82f6'
 ];
 
+const FUNNY_QUOTES = [
+  "Chúc mừng! Bạn là người được chọn... để gánh vác vận mệnh của cả lớp.",
+  "Đừng nhìn quanh nữa, chính là bạn đó! Lên bảng thôi nào.",
+  "Vận may đã mỉm cười với bạn, nhưng nụ cười này hơi... 'hiểm ác'.",
+  "Hôm nay bạn ăn gì mà 'thơm' thế? Trúng ngay giải đặc biệt luôn.",
+  "Cả lớp đang nhìn bạn với ánh mắt đầy... thương cảm.",
+  "Đừng lo, câu hỏi này dễ lắm... đối với người biết câu trả lời.",
+  "Cơ hội để tỏa sáng đã đến, đừng làm cả lớp thất vọng nhé!",
+  "Bạn có quyền giữ im lặng, nhưng mọi lời nói sẽ là bằng chứng trước lớp.",
+  "Thần may mắn hôm nay bận, nên thần 'trả bài' đi thay.",
+  "Một bước lên mây... hay một bước lên bảng, tùy thuộc vào bạn.",
+  "Đừng run, chỉ là trả lời câu hỏi thôi mà, không phải đi đánh trận đâu.",
+  "Tên bạn đẹp quá, nên máy quay nó cứ thích dừng lại ở đó.",
+  "Chúc mừng bạn đã trúng vé số độc đắc... phiên bản học đường.",
+  "Hôm nay là ngày lành tháng tốt để bạn... thể hiện kiến thức.",
+  "Cả thế giới bỗng chốc thu bé lại vừa bằng một cái tên: Bạn!",
+  "Đừng trách máy quay, hãy trách định mệnh đã sắp đặt chúng ta gặp nhau.",
+  "Bạn là ngôi sao sáng nhất đêm nay... à không, tiết học này.",
+  "Hãy hít một hơi thật sâu và bắt đầu... chém gió nào!",
+  "Câu hỏi đang chờ, kiến thức đang bay, còn bạn thì đang... đứng hình.",
+  "Đừng sợ, cô/thầy chỉ muốn nghe giọng hát... à nhầm, giọng nói của bạn thôi.",
+  "Bạn đã sẵn sàng để trở thành anh hùng của tiết học này chưa?",
+  "Nếu bạn không biết câu trả lời, hãy dùng sự hài hước để khỏa lấp nhé.",
+  "Vòng quay đã dừng, tim bạn có ngừng đập một nhịp không?",
+  "Chúc mừng bạn đã vượt qua hàng chục đối thủ để được... lên bảng.",
+  "Hôm nay bạn là 'idol' của cả lớp, ai cũng muốn bạn trả lời đúng.",
+  "Đừng nhìn máy tính với ánh mắt hình viên đạn, nó chỉ làm việc của nó thôi.",
+  "Một phút huy hoàng rồi vụt tắt... hay là tỏa sáng rực rỡ đây?",
+  "Bạn có 5 giây để chuẩn bị tinh thần và 5 phút để... giải trình.",
+  "Cố lên! Cả lớp đang cổ vũ bạn (vì họ không phải là người bị chọn).",
+  "Định mệnh đã gọi tên bạn, hãy trả lời một cách thật 'cool' nhé.",
+  "Bạn là người may mắn nhất hành tinh... trong bán kính cái lớp này.",
+  "Đừng lo, nếu không biết thì cứ... cười thật tươi là được.",
+  "Câu hỏi này sinh ra là để dành cho bạn, hãy đón nhận nó đi!",
+  "Hôm nay là ngày của bạn, hãy làm cho nó thật đáng nhớ nhé.",
+  "Bạn đã được chọn vào đội tuyển... trả lời câu hỏi ngẫu nhiên.",
+  "Hãy chứng minh cho mọi người thấy bạn không chỉ đẹp mà còn... thông minh.",
+  "Vòng quay này không biết nói dối, nó biết bạn đang giấu kiến thức đấy.",
+  "Chúc mừng! Bạn đã trúng giải 'Người truyền cảm hứng' (bằng cách trả lời sai).",
+  "Đừng để nỗi sợ lấn át, hãy để kiến thức (hoặc sự liều lĩnh) dẫn lối.",
+  "Bạn là mảnh ghép còn thiếu của câu trả lời hoàn hảo này.",
+  "Hãy trả lời như thể đây là lần cuối cùng bạn được... đứng trong lớp.",
+  "Đừng quá áp lực, chỉ là cả lớp đang nín thở chờ bạn thôi.",
+  "Bạn có cảm thấy luồng điện chạy qua người không? Đó là sự may mắn đấy!",
+  "Chúc mừng bạn đã lọt vào 'mắt xanh' của vòng quay định mệnh.",
+  "Hãy biến câu hỏi khó thành câu trả lời... dễ hiểu (theo cách của bạn).",
+  "Hôm nay bạn là tâm điểm của vũ trụ, mọi ánh nhìn đều hướng về bạn.",
+  "Đừng ngần ngại, hãy cho cả lớp thấy bản lĩnh của một 'chiến thần'.",
+  "Vòng quay đã chọn bạn, hãy làm cho nó cảm thấy tự hào nhé.",
+  "Bạn là người kế thừa vĩ đại của những người... đã từng bị chọn trước đó.",
+  "Cuối cùng thì cái tên ấy cũng xuất hiện, hãy tỏa sáng đi nào!"
+];
+
 const GROUP_THEMES = [
   { text: 'text-blue-400', border: 'border-blue-500/50', glow: 'shadow-[0_0_30px_rgba(59,130,246,0.3)]', bg: 'bg-blue-500/10' },
   { text: 'text-emerald-400', border: 'border-emerald-500/50', glow: 'shadow-[0_0_30px_rgba(16,185,129,0.3)]', bg: 'bg-emerald-500/10' },
@@ -83,6 +137,8 @@ const RandomPicker: React.FC<RandomPickerProps> = ({ onClose }) => {
   // Spin State
   const [isSpinning, setIsSpinning] = useState(false);
   const [winner, setWinner] = useState<Participant | { id: string, name: string, className: string } | null>(null);
+  const [showWinnerOverlay, setShowWinnerOverlay] = useState(false);
+  const [currentQuote, setCurrentQuote] = useState('');
   const [currentCandidate, setCurrentCandidate] = useState<Participant | { id: string, name: string, className: string } | null>(null);
   const [history, setHistory] = useState<(Participant | { id: string, name: string, className: string })[]>([]);
   const [rotation, setRotation] = useState(0);
@@ -149,16 +205,29 @@ const RandomPicker: React.FC<RandomPickerProps> = ({ onClose }) => {
   };
 
   const getActiveList = () => {
-    if (participants.length > 0) {
-      if (selectedClass === 'Tất cả') return participants;
-      return participants.filter(p => p.className === selectedClass);
+    if (selectedClass === 'Tất cả') {
+      return Array.from({ length: maxNumber }, (_, i) => ({
+        id: `num-${i + 1}`,
+        name: `${i + 1}`,
+        className: 'Số thứ tự'
+      }));
     }
-    return Array.from({ length: maxNumber }, (_, i) => ({
-      id: `num-${i + 1}`,
-      name: `${i + 1}`,
-      className: 'Số thứ tự'
-    }));
+    return participants.filter(p => p.className === selectedClass);
   };
+
+  // Keyboard Shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (activeTab === 'spin' && (e.code === 'Space' || e.code === 'Enter')) {
+        if (!isSpinning) {
+          e.preventDefault();
+          handleSpin();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isSpinning, activeTab, participants, selectedClass, maxNumber]);
 
   const handleSpin = () => {
     const activeList = getActiveList();
@@ -216,16 +285,32 @@ const RandomPicker: React.FC<RandomPickerProps> = ({ onClose }) => {
           // Finish
           const winP = activeList[index];
           setWinner(winP);
+          setShowWinnerOverlay(true);
+          setCurrentQuote(FUNNY_QUOTES[Math.floor(Math.random() * FUNNY_QUOTES.length)]);
           setHistory(prev => [winP, ...prev.slice(0, 19)]);
           setIsSpinning(false);
           setCurrentCandidate(null);
 
-          confetti({
-            particleCount: 200,
-            spread: 90,
-            origin: { y: 0.5 },
-            colors: COLORS
-          });
+          // Intense Fireworks Effect
+          const duration = 5 * 1000;
+          const animationEnd = Date.now() + duration;
+          const defaults = { startVelocity: 45, spread: 360, ticks: 100, zIndex: 1000, scalar: 1.2 };
+
+          const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+          const interval: any = setInterval(function() {
+            const timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) {
+              return clearInterval(interval);
+            }
+
+            const particleCount = 80 * (timeLeft / duration);
+            // since particles fall down, start a bit higher than random
+            confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+            confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+            confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.4, 0.6), y: Math.random() - 0.2 } });
+          }, 200);
         }
       };
       requestAnimationFrame(animate);
@@ -273,16 +358,32 @@ const RandomPicker: React.FC<RandomPickerProps> = ({ onClose }) => {
             setSlotIndex(prev => {
               const winP = activeList[prev % activeList.length];
               setWinner(winP);
+              setShowWinnerOverlay(true);
+              setCurrentQuote(FUNNY_QUOTES[Math.floor(Math.random() * FUNNY_QUOTES.length)]);
               setHistory(historyPrev => [winP, ...historyPrev.slice(0, 19)]);
               setIsSpinning(false);
               setCurrentCandidate(null);
 
-              confetti({
-                particleCount: 200,
-                spread: 90,
-                origin: { y: 0.5 },
-                colors: COLORS
-              });
+              // Intense Fireworks Effect
+              const duration = 5 * 1000;
+              const animationEnd = Date.now() + duration;
+              const defaults = { startVelocity: 45, spread: 360, ticks: 100, zIndex: 1000, scalar: 1.2 };
+
+              const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+              const interval: any = setInterval(function() {
+                const timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                  return clearInterval(interval);
+                }
+
+                const particleCount = 80 * (timeLeft / duration);
+                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.4, 0.6), y: Math.random() - 0.2 } });
+              }, 200);
+
               return prev;
             });
           }, 100);
@@ -357,13 +458,17 @@ const RandomPicker: React.FC<RandomPickerProps> = ({ onClose }) => {
                 <text
                   x={center + (radius * 0.65) * Math.cos(((startAngle + segmentAngle / 2) * Math.PI) / 180)}
                   y={center + (radius * 0.65) * Math.sin(((startAngle + segmentAngle / 2) * Math.PI) / 180)}
-                  fill="white"
-                  fontSize={activeList.length > 20 ? "8" : "10"}
-                  fontWeight="bold"
+                  fill={isSpinning ? "#facc15" : "white"}
+                  fontSize={
+                    activeList.length > 40 ? "6" :
+                    activeList.length > 20 ? "8" :
+                    activeList.length > 10 ? "10" : "12"
+                  }
+                  fontWeight="black"
                   textAnchor="middle"
                   transform={`rotate(${startAngle + segmentAngle / 2}, ${center + (radius * 0.65) * Math.cos(((startAngle + segmentAngle / 2) * Math.PI) / 180)}, ${center + (radius * 0.65) * Math.sin(((startAngle + segmentAngle / 2) * Math.PI) / 180)})`}
                 >
-                  {p.name.length > 10 ? p.name.substring(0, 8) + '..' : p.name}
+                  {p.name.length > 8 ? p.name.substring(0, 6) + '..' : p.name}
                 </text>
               </g>
             );
@@ -381,11 +486,11 @@ const RandomPicker: React.FC<RandomPickerProps> = ({ onClose }) => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/50 z-10 pointer-events-none"></div>
         <div className="flex flex-col items-center gap-4 transition-all duration-100">
           {activeList.length > 0 && (
-            <div className="text-center animate-pulse">
-              <div className="text-5xl font-black text-white uppercase tracking-tighter mb-2">
+            <div className={`text-center transition-all duration-100 ${isSpinning ? 'scale-150' : 'scale-100'}`}>
+              <div className={`text-8xl font-black uppercase tracking-tighter mb-2 transition-colors ${isSpinning ? 'text-yellow-400' : 'text-white'}`}>
                 {activeList[slotIndex % activeList.length].name}
               </div>
-              <div className="text-xl font-bold text-indigo-400">
+              <div className="text-sm font-black text-indigo-400 uppercase tracking-[0.5em] opacity-80">
                 {activeList[slotIndex % activeList.length].className}
               </div>
             </div>
@@ -574,14 +679,29 @@ const RandomPicker: React.FC<RandomPickerProps> = ({ onClose }) => {
                             {spinLeftMode === 'list' ? (
                               <>
                                 <div className="flex-grow overflow-y-auto custom-scrollbar pr-2 space-y-2">
-                                  {getActiveList().map((p, idx) => (
-                                    <div key={p.id} className="flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700/50 rounded-xl hover:bg-slate-700/50 transition-colors">
-                                      <span className="w-6 h-6 flex items-center justify-center bg-slate-700 rounded-lg text-[10px] font-black text-slate-400">{idx + 1}</span>
-                                      <span className="font-bold text-slate-200 text-sm truncate">{p.name}</span>
+                                  {selectedClass !== 'Tất cả' ? (
+                                    <>
+                                      {getActiveList().map((p, idx) => (
+                                        <div key={p.id} className="flex items-center gap-3 p-3 bg-slate-800/50 border border-slate-700/50 rounded-xl hover:bg-slate-700/50 transition-colors">
+                                          <span className="w-6 h-6 flex items-center justify-center bg-slate-700 rounded-lg text-[10px] font-black text-slate-400">{idx + 1}</span>
+                                          <span className="font-bold text-slate-200 text-sm truncate">{p.name}</span>
+                                        </div>
+                                      ))}
+                                      {getActiveList().length === 0 && (
+                                        <div className="text-center py-12 text-slate-500 italic text-sm">Danh sách trống</div>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <div className="flex flex-col items-center justify-center h-full text-center p-6 gap-4">
+                                      <div className="w-16 h-16 bg-indigo-500/10 rounded-full flex items-center justify-center">
+                                        <Settings className="w-8 h-8 text-indigo-500 animate-spin-slow" />
+                                      </div>
+                                      <div>
+                                        <p className="text-slate-300 font-black uppercase tracking-tighter text-lg">Chế độ quay số</p>
+                                        <p className="text-slate-500 text-xs font-bold mt-1">Đang quay từ 1 đến {maxNumber}</p>
+                                      </div>
+                                      <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest mt-4 italic">Chọn một lớp để hiện danh sách học sinh</p>
                                     </div>
-                                  ))}
-                                  {getActiveList().length === 0 && (
-                                    <div className="text-center py-12 text-slate-500 italic text-sm">Danh sách trống</div>
                                   )}
                                 </div>
 
@@ -600,18 +720,16 @@ const RandomPicker: React.FC<RandomPickerProps> = ({ onClose }) => {
                                     </select>
                                   </div>
 
-                                  {participants.length === 0 && (
-                                    <div className="flex items-center justify-between gap-2">
-                                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Số lượng (1-{maxNumber})</label>
-                                      <input 
-                                        type="number" 
-                                        min="2" max="100"
-                                        value={maxNumber}
-                                        onChange={(e) => setMaxNumber(Math.max(2, parseInt(e.target.value) || 2))}
-                                        className="w-16 text-center font-black text-sm p-1.5 rounded-lg border border-slate-700 bg-slate-800 text-indigo-400 outline-none"
-                                      />
-                                    </div>
-                                  )}
+                                  <div className="flex items-center justify-between gap-2">
+                                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Số lượng (1-{maxNumber})</label>
+                                    <input 
+                                      type="number" 
+                                      min="2" max="1000"
+                                      value={maxNumber}
+                                      onChange={(e) => setMaxNumber(Math.max(2, parseInt(e.target.value) || 2))}
+                                      className="w-16 text-center font-black text-sm p-1.5 rounded-lg border border-slate-700 bg-slate-800 text-indigo-400 outline-none"
+                                    />
+                                  </div>
                                 </div>
                               </>
                             ) : (
@@ -645,13 +763,34 @@ const RandomPicker: React.FC<RandomPickerProps> = ({ onClose }) => {
                             <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent ${isSpinning ? 'opacity-100' : 'opacity-0'}`}></div>
                             
                             {currentCandidate ? (
-                              <div className="text-center animate-bounce-in">
-                                <div className="text-4xl font-black text-white uppercase tracking-tighter drop-shadow-lg">
+                              <div className="text-center animate-bounce-in w-full px-4">
+                                <div className={`font-black uppercase tracking-tighter drop-shadow-lg transition-all duration-100 truncate ${
+                                  currentCandidate.name.length > 15 ? 'text-4xl' :
+                                  currentCandidate.name.length > 10 ? 'text-6xl' : 'text-8xl'
+                                } ${isSpinning ? 'text-yellow-400 scale-110' : 'text-white'}`}>
                                   {currentCandidate.name}
                                 </div>
-                                <div className="text-xs font-bold text-indigo-400 uppercase tracking-widest">
+                                <div className="text-sm font-black text-indigo-400 uppercase tracking-[0.3em] mt-1 opacity-80">
                                   {currentCandidate.className}
                                 </div>
+                              </div>
+                            ) : winner ? (
+                              <div className="text-center w-full px-4 relative z-20">
+                                <div className="text-slate-500 font-black text-sm uppercase tracking-[0.3em] mb-2">
+                                  CHÚC MỪNG CHIẾN THẮNG!
+                                </div>
+                                <div className={`font-black text-white uppercase tracking-tighter drop-shadow-[0_0_30px_rgba(255,255,255,0.4)] truncate ${
+                                  winner.name.length > 15 ? 'text-4xl' :
+                                  winner.name.length > 10 ? 'text-6xl' : 'text-7xl'
+                                }`}>
+                                  {winner.name}
+                                </div>
+                                <button 
+                                  onClick={() => setShowWinnerOverlay(true)}
+                                  className="mt-4 px-6 py-2 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 rounded-full font-black text-[10px] uppercase tracking-widest transition-all border border-indigo-500/30 flex items-center gap-2 mx-auto"
+                                >
+                                  <Sparkles className="w-3 h-3" /> XEM LẠI KẾT QUẢ
+                                </button>
                               </div>
                             ) : (
                               <div className="text-slate-600 font-black text-lg uppercase tracking-[0.3em] flex items-center gap-3">
@@ -661,7 +800,7 @@ const RandomPicker: React.FC<RandomPickerProps> = ({ onClose }) => {
                                     <span>ĐANG LỌC...</span>
                                   </>
                                 ) : (
-                                  <span>SẴN SÀNG</span>
+                                  <span>SẴN SÀNG QUAY</span>
                                 )}
                               </div>
                             )}
@@ -857,6 +996,100 @@ const RandomPicker: React.FC<RandomPickerProps> = ({ onClose }) => {
                 </div>
             )}
         </div>
+        {/* Winner Overlay */}
+        <AnimatePresence>
+          {showWinnerOverlay && winner && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 z-[400] bg-slate-950/90 backdrop-blur-2xl flex items-center justify-center p-8"
+            >
+              <motion.div 
+                initial={{ scale: 0.8, y: 50, opacity: 0 }}
+                animate={{ scale: 1, y: 0, opacity: 1 }}
+                exit={{ scale: 0.8, y: 50, opacity: 0 }}
+                transition={{ type: "spring", damping: 15 }}
+                className="w-full max-w-4xl text-center relative"
+              >
+                {/* Background Glow */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-indigo-500/20 blur-[120px] rounded-full -z-10 animate-pulse"></div>
+                
+                {/* Close Button */}
+                <button 
+                  onClick={() => setShowWinnerOverlay(false)}
+                  className="absolute -top-12 -right-12 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all border border-white/20 group"
+                >
+                  <X className="w-8 h-8 group-hover:rotate-90 transition-transform" />
+                </button>
+
+                {/* Quote Section */}
+                {currentQuote && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="mb-12 relative inline-block"
+                  >
+                    <div className="absolute -inset-4 bg-yellow-400/20 blur-2xl rounded-full animate-pulse"></div>
+                    <div className="relative bg-gradient-to-br from-yellow-400/30 to-orange-500/30 backdrop-blur-xl border-4 border-yellow-400/50 p-8 rounded-[3rem] shadow-[0_0_50px_rgba(250,204,21,0.4)]">
+                      <Sparkles className="absolute -top-6 -left-6 w-12 h-12 text-yellow-400 animate-bounce" />
+                      <Sparkles className="absolute -bottom-6 -right-6 w-12 h-12 text-yellow-400 animate-bounce" style={{ animationDelay: '0.5s' }} />
+                      <div className="text-yellow-400 font-black italic text-2xl md:text-3xl leading-tight drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] max-w-2xl">
+                        "{currentQuote}"
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Winner Name Section */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.5, type: "spring" }}
+                  className="space-y-6"
+                >
+                  <div className="text-indigo-400 font-black text-xl uppercase tracking-[0.5em] drop-shadow-lg">
+                    NGƯỜI CHIẾN THẮNG
+                  </div>
+                  <div className={`font-black text-white uppercase tracking-tighter drop-shadow-[0_0_50px_rgba(255,255,255,0.6)] leading-none ${
+                    winner.name.length > 15 ? 'text-7xl md:text-8xl' :
+                    winner.name.length > 10 ? 'text-8xl md:text-9xl' : 'text-9xl md:text-[12rem]'
+                  }`}>
+                    {winner.name}
+                  </div>
+                  <div className="inline-block px-12 py-4 bg-indigo-600 text-white rounded-full font-black text-2xl uppercase tracking-[0.3em] shadow-[0_10px_30px_rgba(79,70,229,0.5)] border-4 border-indigo-400/50">
+                    {winner.className}
+                  </div>
+                </motion.div>
+
+                {/* Action Buttons */}
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1 }}
+                  className="mt-16 flex items-center justify-center gap-6"
+                >
+                  <button 
+                    onClick={() => {
+                      setShowWinnerOverlay(false);
+                      handleSpin();
+                    }}
+                    className="px-10 py-5 bg-white text-indigo-900 rounded-2xl font-black text-xl uppercase tracking-tighter hover:scale-105 transition-all shadow-2xl flex items-center gap-3"
+                  >
+                    <RefreshCw className="w-6 h-6" /> QUAY TIẾP
+                  </button>
+                  <button 
+                    onClick={() => setShowWinnerOverlay(false)}
+                    className="px-10 py-5 bg-indigo-600/20 hover:bg-indigo-600/40 text-white rounded-2xl font-black text-xl uppercase tracking-tighter transition-all border border-indigo-500/30"
+                  >
+                    ĐÓNG
+                  </button>
+                </motion.div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
